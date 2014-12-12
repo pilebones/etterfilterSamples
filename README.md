@@ -5,7 +5,7 @@ Some FONCTIONNAL sample of filter for Ettercap (some Etterfilter)
 
 ## Introduction
 
-This project is associated to the others mine : 
+This project is associated to another mine : 
 - https://github.com/pilebones/backdoorBash
 - https://github.com/pilebones/hostingBackdoorInstaller
 
