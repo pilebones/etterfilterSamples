@@ -28,5 +28,4 @@ Notice :
 - etterfilter (v0.8.1)
 
 ## How it work ?
-
-## References
+_TODO_
